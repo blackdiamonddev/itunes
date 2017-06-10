@@ -1,4 +1,4 @@
-angular.module('itunes').service('itunesService', function($http, $q){
+angular.module('itunes').service('itunesService', function($http){
   //This service is what will do the 'heavy lifting' and get our data from the iTunes API.
   //Also note that we're using a 'service' and not a 'factory' so all your methods you want to call in your controller need to be on 'this'.
 
@@ -8,8 +8,28 @@ angular.module('itunes').service('itunesService', function($http, $q){
   //You can return the http request or you can make your own promise in order to manipulate the data before you resolve it.
 
     //Code here
-    
-
+    this.getSongData = function(artist) {
+      // var derrered = $q.defer();
+      // console.log(1111, artist);
+      return $http({
+        method: 'JSONP',
+        url: 'https://itunes.apple.com/search?term=' + artist + '&callback=JSON_CALLBACK'
+      }).then(function(response){
+        // console.log(response)
+        var songData = response.data.results; //check the object so you know if it's data.data or data.results
+          songData.forEach(function(song) {
+            song.Play = song.previewUrl,
+            song.Artist = song.artistName,
+            song.Song = song.trackName,
+            song.Collection = song.collectionName,
+            song.AlbumArt = song.artworkUrl60 ? song.artworkUrl60 : song.artworkUrl30, //saying if 60 avail, use it, else use 30.
+            song.Type = song.kind,
+            song.CollectionPrice = song.collectionPrice
+          })
+         return songData;
+        });
+        // return response;
+    }
 
 
 
